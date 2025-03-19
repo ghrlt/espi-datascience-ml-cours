@@ -1,0 +1,62 @@
+services:
+  python:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: cours_data_python
+    restart: unless-stopped
+    volumes:
+      - ./app:/usr/src/app
+    networks:
+      - app_network
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:15
+    container_name: cours_data_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: cours_data
+    ports:
+      - "54320:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: cours_data_pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "54321:80"
+    depends_on:
+      - postgres
+    networks:
+      - app_network
+  api:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: cours_data_api
+    restart: unless-stopped
+    ports:
+      - "80:5000"
+    depends_on:
+      - postgres
+      - python
+    networks:
+      - app_network
+    command: ["python3", "src/api.py"]
+
+volumes:
+  postgres_data:
+
+networks:
+  app_network:
