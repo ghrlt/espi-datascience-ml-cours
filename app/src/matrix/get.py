@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+import os
 from db.repository import Repository
 
 def normalize_columns(matrix):
@@ -36,9 +37,23 @@ def get_matrix():
     df_crime_index = pd.DataFrame(data_crime_index, columns=['id', 'country', 'description', 'value', 'unit'])
 
     # Charger le mapping des colonnes
-    with open("app/src/matrix/mapped_column.json", "r") as f:
-        column_mapping = json.load(f)
+    mapping_path = os.path.join(os.path.dirname(__file__), "mapped_column.json")
 
+    if not os.path.exists(mapping_path):
+        print("⚠️ Aucun fichier mapped_column.json trouvé. Utilisation d'un mapping vide.")
+        column_mapping = {}
+    else:
+        with open(mapping_path, "r") as f:
+            try:
+                column_mapping = json.load(f)
+            except json.JSONDecodeError:
+                print("⚠️ Le fichier mapped_column.json est vide ou invalide. Mapping ignoré.")
+                column_mapping = {}
+
+    if not column_mapping:
+        print("⚠️ Aucun mapping trouvé. Les données ne seront pas insérées dans la base de données.")
+        raise ValueError("Aucun mapping trouvé.")
+    
     column_mapping = {key.strip().lower(): value for key, value in column_mapping.items()}
 
     # Nettoyage des descriptions

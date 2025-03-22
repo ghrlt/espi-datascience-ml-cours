@@ -1,0 +1,9 @@
+{
+    "meal, inexpensive restaurant": "meal_inexpensive",
+    "meal for 2 people, mid-range restaurant, three-course": "meal_for_two",
+    "mcmeal at mcdonalds (or equivalent combo meal)": "mcmeal",
+    "domestic beer (0.5 liter draught)": "domestic_beer",
+    "imported beer (0.33 liter bottle)": "imported_beer",
+    "internet (60 mbps or more, unlimited data, cable/adsl)": "internet",
+    "gasoline (1 liter)": "gasoline"
+}

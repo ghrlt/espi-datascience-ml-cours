@@ -13,8 +13,8 @@ def train_linear_model(target_column="meal_inexpensive"):
     data = repo.fetch_all("matrix_cost_of_life")
     repo.close()
     if not data:
-        print("❌ Aucune donnée disponible pour l'entraînement.")
-        return
+        print("❌ Aucune donnée disponible pour l'entraînement.", flush=True)
+        raise ValueError("❌ Aucune donnée dans la table 'matrix_cost_of_life'. As-tu exécuté le pipeline ?")
     
     df = pd.DataFrame(data, columns=[
         "country", "meal_inexpensive", "meal_for_two", "mcmeal", "domestic_beer", 
@@ -36,6 +36,12 @@ def train_linear_model(target_column="meal_inexpensive"):
     X = df.drop(columns=[target_column])
     y = df[target_column]
 
+    print("📊 Données d'entraînement dispo :", df.shape)
+    print(df.head())
+    if df.empty:
+        raise ValueError("❌ Aucun échantillon disponible dans la matrice pour entraîner le modèle.")
+
+
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     model = LinearRegression()
@@ -45,11 +51,13 @@ def train_linear_model(target_column="meal_inexpensive"):
     print(f"🎯 R² score sur le test set: {r2_score(y_test, y_pred):.4f}")
 
     joblib.dump(model, MODEL_PATH)
-    print(f"✅ Modèle sauvegardé dans {MODEL_PATH}")
+    print(f"✅ Modèle sauvegardé dans {MODEL_PATH}", flush=True)
+
 
 def predict(input_features: dict):
     if not os.path.exists(MODEL_PATH):
-        raise FileNotFoundError("⚠️ Modèle non trouvé. Entraîne-le d'abord via /train-model.")
+        raise FileNotFoundError("❌ Modèle non trouvé. Entraîne-le d'abord via /train-model.")
+    
     model = joblib.load(MODEL_PATH)
     df = pd.DataFrame([input_features])
     return model.predict(df)[0]

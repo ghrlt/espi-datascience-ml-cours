@@ -10,25 +10,22 @@ class Repository:
         return not self.db.table_exists("links")
 
     def insert_data(self, table, df):
-        """
-        Insère un DataFrame dans la base de données PostgreSQL.
-        :param table: Nom de la table
-        :param df: DataFrame pandas contenant les données
-        """
         if df.empty:
             print(f"⚠️ DataFrame vide, rien à insérer dans {table}")
             return
 
-        cols = ", ".join(df.columns)  # Noms des colonnes
-        values_placeholder = ", ".join(["%s"] * len(df.columns))  # Placeholders pour les valeurs
+        cols = ", ".join(df.columns) # Nom des colonnes
+        values_placeholder = ", ".join(["%s"] * len(df.columns)) # Placeholder pour les valeurs
 
         sql = f"INSERT INTO {table} ({cols}) VALUES ({values_placeholder}) ON CONFLICT DO NOTHING"
+        
         try:
             for row in df.itertuples(index=False, name=None):
                 self.db.execute(sql, row)
             print(f"✅ Données insérées dans {table} avec succès.")
         except Exception as e:
             print(f"❌ Erreur lors de l'insertion dans {table} : {e}")
+            self.db.conn.rollback()
 
     def fetch_all(self, table):
         """
