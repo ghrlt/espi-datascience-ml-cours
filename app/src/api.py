@@ -1,8 +1,30 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, send_from_directory
 from db.repository import Repository
 from pipeline import run_pipeline
+from ml_model.linear import train_linear_model, predict
 
 app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return send_from_directory('src/ui', 'index.html')
+
+@app.route('/train-model', methods=['POST'])
+def train_model():
+    try:
+        train_linear_model()
+        return jsonify({"message": "Modèle entraîné avec succès."}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/predict', methods=['POST'])
+def predict_route():
+    try:
+        features = request.get_json()
+        prediction = predict(features)
+        return jsonify({"prediction": prediction}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/matrix', methods=['GET'])
 def get_matrix():

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Cost Predictor</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; background: #111; color: #eee; }
+    input, button { margin: 0.5rem 0; padding: 0.5rem; width: 100%; max-width: 300px; }
+    label { display: block; margin-top: 1rem; }
+    .container { max-width: 600px; margin: auto; }
+    .result { margin-top: 2rem; font-size: 1.2em; color: #0f0; }
+    .error { color: #f33; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>💸 AI Cost Predictor</h1>
+
+    <button onclick="trainModel()">🚀 Entraîner le modèle</button>
+
+    <form id="predictForm" onsubmit="predict(event)">
+      <h2>🔮 Prédiction : Meal Inexpensive</h2>
+      <label>mcmeal: <input name="mcmeal" type="number" step="0.01" required></label>
+      <label>internet: <input name="internet" type="number" step="0.01" required></label>
+      <label>gasoline: <input name="gasoline" type="number" step="0.01" required></label>
+      <label>crime_index: <input name="crime_index" type="number" step="0.01" required></label>
+      <label>bread: <input name="bread" type="number" step="0.01" required></label>
+      <label>cheese: <input name="cheese" type="number" step="0.01" required></label>
+
+      <button type="submit">✨ Prédire</button>
+    </form>
+
+    <div class="result" id="predictionResult"></div>
+  </div>
+
+  <script>
+    function trainModel() {
+      fetch('/train-model', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          alert(data.message || data.error);
+        })
+        .catch(err => alert("Erreur : " + err));
+    }
+
+    function predict(event) {
+      event.preventDefault();
+      const form = document.getElementById("predictForm");
+      const formData = new FormData(form);
+      const jsonData = {};
+
+      for (const [key, value] of formData.entries()) {
+        jsonData[key] = parseFloat(value);
+      }
+
+      fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(jsonData)
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.prediction !== undefined) {
+          document.getElementById("predictionResult").innerHTML =
+            `🍽️ Meal Inexpensive estimé : <strong>${data.prediction.toFixed(2)} €</strong>`;
+        } else {
+          document.getElementById("predictionResult").innerHTML = `<span class="error">${data.error}</span>`;
+        }
+      })
+      .catch(err => {
+        document.getElementById("predictionResult").innerHTML = `<span class="error">Erreur : ${err}</span>`;
+      });
+    }
+  </script>
+</body>
+</html>
