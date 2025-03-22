@@ -47,9 +47,9 @@ def run_pipeline(count: int = 0):
     print("🔗 Liens récupérés avec succès !"
           f"\n🔗 {len(urls)} liens trouvés.")
     
-    # Limiter à quelques pays pour test et avoid le ban 429
-    selected_countries = ["France", "Germany", "Japan"]
-    urls = [url for url in urls if url[1] in selected_countries]
+    # # Limiter à quelques pays pour test et avoid le ban 429
+    # selected_countries = ["France", "Germany", "Japan"]
+    # urls = [url for url in urls if url[1] in selected_countries]
 
     print("🌍 Pays sélectionnés pour le scraping :", [u[1] for u in urls])
 
