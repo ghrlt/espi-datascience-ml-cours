@@ -1,21 +1,52 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="UTF-8">
   <title>AI Cost Predictor</title>
   <style>
-    body { font-family: sans-serif; margin: 2rem; background: #111; color: #eee; }
-    input, button { margin: 0.5rem 0; padding: 0.5rem; width: 100%; max-width: 300px; }
-    label { display: block; margin-top: 1rem; }
-    .container { max-width: 600px; margin: auto; }
-    .result { margin-top: 2rem; font-size: 1.2em; color: #0f0; }
-    .error { color: #f33; }
+    body {
+      font-family: sans-serif;
+      margin: 2rem;
+      background: #111;
+      color: #eee;
+    }
+
+    input,
+    button {
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    label {
+      display: block;
+      margin-top: 1rem;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .result {
+      margin-top: 2rem;
+      font-size: 1.2em;
+      color: #0f0;
+    }
+
+    .error {
+      color: #f33;
+    }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>💸 AI Cost Predictor</h1>
 
+    <button onclick="runPipeline()">🚀 Exécuter le pipeline</button>
     <button onclick="trainModel()">🚀 Entraîner le modèle</button>
 
     <form id="predictForm" onsubmit="predict(event)">
@@ -43,6 +74,15 @@
         .catch(err => alert("Erreur : " + err));
     }
 
+    function runPipeline() {
+      fetch('/run-pipeline', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          alert(data.message || data.error);
+        })
+        .catch(err => alert("Erreur : " + err));
+    }
+
     function predict(event) {
       event.preventDefault();
       const form = document.getElementById("predictForm");
@@ -58,19 +98,20 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(jsonData)
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.prediction !== undefined) {
-          document.getElementById("predictionResult").innerHTML =
-            `🍽️ Meal Inexpensive estimé : <strong>${data.prediction.toFixed(2)} €</strong>`;
-        } else {
-          document.getElementById("predictionResult").innerHTML = `<span class="error">${data.error}</span>`;
-        }
-      })
-      .catch(err => {
-        document.getElementById("predictionResult").innerHTML = `<span class="error">Erreur : ${err}</span>`;
-      });
+        .then(res => res.json())
+        .then(data => {
+          if (data.prediction !== undefined) {
+            document.getElementById("predictionResult").innerHTML =
+              `🍽️ Meal Inexpensive estimé : <strong>${data.prediction.toFixed(2)} €</strong>`;
+          } else {
+            document.getElementById("predictionResult").innerHTML = `<span class="error">${data.error}</span>`;
+          }
+        })
+        .catch(err => {
+          document.getElementById("predictionResult").innerHTML = `<span class="error">Erreur : ${err}</span>`;
+        });
     }
   </script>
 </body>
+
 </html>
